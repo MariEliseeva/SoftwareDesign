@@ -35,45 +35,44 @@ public class CommandGrep implements Command {
 
     @Override
     public void run(Environment environment) throws LexerException {
-        if (files.length == 0) {
-            previousCommand.execute(environment);
-            files = new String[1];
-            files[0] = environment.getOutput();
-            return;
-        }
-
         Pattern pattern = Pattern.compile(regex, ignoreCase ? Pattern.CASE_INSENSITIVE : 0);
         int linesToPrintAfter = 0;
         StringBuilder result = new StringBuilder();
-        Scanner scanner;
-        for (String fileName : files) {
-            try {
-                scanner = new Scanner(new FileInputStream(fileName));
-            } catch (FileNotFoundException e) {
-                result.append("grep: ").append(fileName).append(": No such file found.");
-                continue;
-            }
-            while (scanner.hasNext()) {
-                String line = scanner.nextLine();
-                boolean matches = false;
-                if (wordRegexp) {
-                    for (String word : line.trim().split("\\s+")) {
-                        if (pattern.matcher(word).matches()) {
-                            matches = true;
-                            break;
-                        }
-                    }
-                } else {
-                    matches = pattern.matcher(line).find();
-                }
-                if (matches) {
+
+        if (files.length == 0) {
+            previousCommand.execute(environment);
+            for (String line : environment.getOutput().split("\n")) {
+                if (match(line, pattern)) {
                     result.append(line).append("\n");
                     linesToPrintAfter = afterContext;
                 } else if (linesToPrintAfter > 0) {
                     linesToPrintAfter--;
                     result.append(line).append("\n");
-                    if (linesToPrintAfter == 0 && scanner.hasNext()) {
+                    if (linesToPrintAfter == 0) {
                         result.append("--\n");
+                    }
+                }
+            }
+        } else {
+            Scanner scanner;
+            for (String fileName : files) {
+                try {
+                    scanner = new Scanner(new FileInputStream(fileName));
+                } catch (FileNotFoundException e) {
+                    result.append("grep: ").append(fileName).append(": No such file found.");
+                    continue;
+                }
+                while (scanner.hasNext()) {
+                    String line = scanner.nextLine();
+                    if (match(line, pattern)) {
+                        result.append(line).append("\n");
+                        linesToPrintAfter = afterContext;
+                    } else if (linesToPrintAfter > 0) {
+                        linesToPrintAfter--;
+                        result.append(line).append("\n");
+                        if (linesToPrintAfter == 0 && scanner.hasNext()) {
+                            result.append("--\n");
+                        }
                     }
                 }
             }
@@ -81,5 +80,16 @@ public class CommandGrep implements Command {
         if (result.length() > 0) {
             environment.writeToPipe(result.toString().substring(0, result.length() - 1));
         }
+    }
+
+    private boolean match(String string, Pattern pattern) {
+        if (wordRegexp) {
+            for (String word : string.trim().split("\\s+")) {
+                if (pattern.matcher(word).matches()) {
+                    return true;
+                }
+            }
+        }
+        return pattern.matcher(string).find();
     }
 }
