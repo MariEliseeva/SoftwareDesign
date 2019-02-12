@@ -18,6 +18,8 @@ public class CommandCreator {
                 return new CommandPwd();
             case "exit":
                 return new CommandExit();
+            case "grep":
+                return new CommandGrep(commandArguments, previousCommand);
             case "=":
                 return new CommandsAssignment(commandArguments);
             default:
