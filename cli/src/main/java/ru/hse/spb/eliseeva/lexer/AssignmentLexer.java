@@ -8,11 +8,10 @@ public class AssignmentLexer extends CommandLexer {
     /**
      * Goes through all symbols, transform them to tokens of needed token type using package-private Tokenizer class:
      * <ul>
-     *     <li>for quoted text reads until paired quote</li>
-     *     <li>for old variable reads until symbol is appropriate for the name</li>
-     *     <li>for other symbols creates text token</li>
-     * <ul/>
-     * *
+     *     <li>for quoted text reads until paired quote;
+     *     <li>for old variable reads until symbol is appropriate for the name;
+     *     <li>for other symbols creates text token;
+     * </ul>
      * @param commands line of commands to transform to tokens
      * @return list of tokens for the given commands
      * @throws LexerException thrown if quotes or variable assignment are not correct

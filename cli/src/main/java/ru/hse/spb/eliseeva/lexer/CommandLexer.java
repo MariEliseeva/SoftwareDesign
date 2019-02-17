@@ -11,12 +11,11 @@ public class CommandLexer implements Lexer {
     /**
      * Goes through all symbols, transform them to tokens of needed token type using package-private Tokenizer class:
      * <ul>
-     *     <li>for quoted text reads until paired quote</li>
-     *     <li>for old variable reads until symbol is appropriate for the name</li>
-     *     <li>for new variable check that is is the only command</li>
-     *     <li>for space, pipe or usual text just creates needed token</li>
-     * <ul/>
-     * *
+     *     <li>for quoted text reads until paired quote;
+     *     <li>for old variable reads until symbol is appropriate for the name;
+     *     <li>for new variable check that is is the only command;
+     *     <li>for space, pipe or usual text just creates needed token;
+     * </ul>
      * @param commands line of commands to transform to tokens
      * @return list of tokens for the given commands
      * @throws LexerException thrown if quotes or variable assignment are not correct
