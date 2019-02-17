@@ -36,12 +36,10 @@ public class CommandExternal implements Command {
             while ((s = programOutput.readLine()) != null) {
                 result.append(s).append(System.lineSeparator());
             }
-            if (result.length() > 0) {
-                environment.writeToPipe(result.toString().substring(0, result.length() - 1));
-            }
+            environment.writeToPipe(result.toString());
         }
         catch (IOException e) {
-            environment.writeToPipe(e.getMessage() + System.lineSeparator());
+            environment.writeToErrors(e.getMessage() + System.lineSeparator());
         }
     }
 }

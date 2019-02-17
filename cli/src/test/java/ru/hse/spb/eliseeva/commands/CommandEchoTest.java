@@ -12,6 +12,6 @@ public class CommandEchoTest {
     public void run(){
         Environment environment = new Environment();
         CommandCreator.create("echo", Arrays.asList("arb", "hale")).run(environment);
-        assertEquals("arb hale", environment.getOutput());
+        assertEquals("arb hale" + System.lineSeparator(), environment.getOutput());
     }
 }

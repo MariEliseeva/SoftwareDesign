@@ -50,6 +50,7 @@ public class CommandWc implements Command {
         if (arguments.size() > 1) {
             result.append(getTotalInformation());
         }
+        result.append(System.lineSeparator());
         environment.writeToPipe(result.toString());
     }
 
@@ -59,15 +60,15 @@ public class CommandWc implements Command {
     private void countFromInput(Environment environment) {
         if (environment.hasOutPut()) {
             String previousResult = environment.getOutput();
-            environment.writeToPipe(addStatistics(previousResult));
+            environment.writeToPipe(addStatistics(previousResult) + System.lineSeparator());
         } else {
-            environment.writeToPipe("0 0 0");
+            environment.writeToPipe("0 0 0" + System.lineSeparator());
         }
     }
 
     private String addStatistics(String s) {
-        int linesNumber = s.split(System.lineSeparator()).length;
-        int wordsNumber = s.trim().split("\\s+").length;
+        int linesNumber = s.length() - s.replace(System.lineSeparator(), "").length();
+        int wordsNumber = s.trim().isEmpty()? 0 : s.trim().split("\\s+").length;
         int bytesNumber = s.getBytes().length;
         totalLines += linesNumber;
         totalWords += wordsNumber;

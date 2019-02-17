@@ -12,8 +12,8 @@ public class CommandWcTest {
     @Test
     public void run() {
         Environment environment = new Environment();
-        environment.writeToPipe("1 2 3");
+        environment.writeToPipe("1 2 3" + System.lineSeparator());
         CommandCreator.create("wc", new ArrayList<>()).run(environment);
-        assertEquals("1 3 5", environment.getOutput());
+        assertEquals("1 3 6" + System.lineSeparator(), environment.getOutput());
     }
 }

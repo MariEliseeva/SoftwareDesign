@@ -38,6 +38,9 @@ public class Interpreter {
     public void run() {
         while (scanner.hasNext()){
             String command = scanner.nextLine();
+            if (command.isEmpty()) {
+                continue;
+            }
             try {
                 List<Token> tokens = lexer.tokenize(command);
                 List<Executable> executables = parser.parse(tokens);
@@ -52,11 +55,11 @@ public class Interpreter {
             }
 
             if (environment.hasOutPut()) {
-                System.out.println(environment.getOutput());
+                System.out.print(environment.getOutput());
             }
 
             if (environment.hasErrors()) {
-                System.out.println(environment.getErrors());
+                System.out.print(environment.getErrors());
             }
 
             if (environment.isEnd()) {

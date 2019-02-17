@@ -14,6 +14,6 @@ public class CommandExternalTest {
         Environment environment = new Environment();
         assertFalse(environment.isEnd());
         CommandCreator.create("echo", Collections.singletonList("12345")).run(environment);
-        assertEquals("12345", environment.getOutput());
+        assertEquals("12345" + System.lineSeparator(), environment.getOutput());
     }
 }

@@ -13,12 +13,15 @@ public class Environment {
     private boolean isEnd = false;
 
     /**
-     * Returns variable value by its name
+     * Returns variable value by its name or an empty string if no value found.
      * @param variable name of the variable
      * @return value of the given variable
      */
     public String getVariableValue(String variable) {
-        return variableValues.get(variable);
+        if (variableValues.containsKey(variable)) {
+            return variableValues.get(variable);
+        }
+        return "";
     }
 
     /**
