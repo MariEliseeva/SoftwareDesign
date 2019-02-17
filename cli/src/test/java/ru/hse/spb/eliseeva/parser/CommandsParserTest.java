@@ -2,7 +2,7 @@ package ru.hse.spb.eliseeva.parser;
 
 import org.junit.Test;
 import ru.hse.spb.eliseeva.Environment;
-import ru.hse.spb.eliseeva.exceptions.LexerException;
+import ru.hse.spb.eliseeva.exceptions.EnvironmentException;
 import ru.hse.spb.eliseeva.exceptions.ParserException;
 import ru.hse.spb.eliseeva.lexer.Token;
 
@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
 public class CommandsParserTest {
 
     @Test
-    public void parse() throws LexerException, ParserException {
+    public void parseTest() throws ParserException, EnvironmentException {
         List<Token> tokens = Arrays.asList(
                 new Token(Token.Type.DOUBLE_QUOTED, "\"ech\""),
                 new Token(Token.Type.SINGLE_QUOTED, "'o'"),

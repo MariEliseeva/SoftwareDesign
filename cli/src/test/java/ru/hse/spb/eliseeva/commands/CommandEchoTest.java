@@ -9,7 +9,7 @@ import static org.junit.Assert.*;
 
 public class CommandEchoTest {
     @Test
-    public void run(){
+    public void runTest(){
         Environment environment = new Environment();
         CommandCreator.create("echo", Arrays.asList("arb", "hale")).run(environment);
         assertEquals("arb hale" + System.lineSeparator(), environment.getOutput());

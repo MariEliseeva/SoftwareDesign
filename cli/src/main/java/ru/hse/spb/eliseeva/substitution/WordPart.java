@@ -1,7 +1,7 @@
 package ru.hse.spb.eliseeva.substitution;
 
 import ru.hse.spb.eliseeva.Environment;
-import ru.hse.spb.eliseeva.exceptions.LexerException;
+import ru.hse.spb.eliseeva.exceptions.EnvironmentException;
 
 /**
  * Interface representing a part of a string that can be text, variable, quoted text etc.
@@ -9,5 +9,5 @@ import ru.hse.spb.eliseeva.exceptions.LexerException;
  * Differs from token: we can't evaluate the token.
  */
 public interface WordPart {
-    String evaluate(Environment environment) throws LexerException;
+    String evaluate(Environment environment) throws EnvironmentException;
 }

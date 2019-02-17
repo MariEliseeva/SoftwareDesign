@@ -3,7 +3,7 @@ package ru.hse.spb.eliseeva.commands;
 import ru.hse.spb.eliseeva.Environment;
 
 /**
- * Interface of some command we can run using the given environment.
+ * Interface of some command that we can run using the given environment.
  */
 public interface Command {
     /**

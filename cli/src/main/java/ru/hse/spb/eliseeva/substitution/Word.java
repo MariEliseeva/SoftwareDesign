@@ -1,13 +1,14 @@
 package ru.hse.spb.eliseeva.substitution;
 
 import ru.hse.spb.eliseeva.Environment;
-import ru.hse.spb.eliseeva.exceptions.LexerException;
+import ru.hse.spb.eliseeva.exceptions.EnvironmentException;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A group of word parts, which is also a word part for the bigger word.
+ * A group of word parts, which is also a word part for the bigger word
+ * and can be evaluated by evaluating all its parts.
  */
 public class Word implements WordPart{
     private List<WordPart> argumentParts = new ArrayList<>();
@@ -15,7 +16,7 @@ public class Word implements WordPart{
     private Word(){}
 
     /**
-     * Add a new part to exeisting parts of word (quoted text, some old variable, usual test etc.)
+     * Add a new part to existing parts of word (quoted text, some old variable, usual test etc.)
      * @param wordPart new part of word to add
      */
     public void addPart(WordPart wordPart){
@@ -38,8 +39,14 @@ public class Word implements WordPart{
         return new Word();
     }
 
+    /**
+     * Goes through all the parts and concatenate their evaluation results.
+     * @param environment environment to take variable values
+     * @return string with all quotes replaced and all variable substituted
+     * @throws EnvironmentException when no variable exists
+     */
     @Override
-    public String evaluate(Environment environment) throws LexerException {
+    public String evaluate(Environment environment) throws EnvironmentException {
         StringBuilder result = new StringBuilder();
         for (WordPart argumentPart : argumentParts) {
             result.append(argumentPart.evaluate(environment));

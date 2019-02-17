@@ -1,5 +1,7 @@
 package ru.hse.spb.eliseeva;
 
+import ru.hse.spb.eliseeva.exceptions.EnvironmentException;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,11 +19,11 @@ public class Environment {
      * @param variable name of the variable
      * @return value of the given variable
      */
-    public String getVariableValue(String variable) {
+    public String getVariableValue(String variable) throws EnvironmentException {
         if (variableValues.containsKey(variable)) {
             return variableValues.get(variable);
         }
-        return "";
+        throw new EnvironmentException("No such variable: " + variable);
     }
 
     /**

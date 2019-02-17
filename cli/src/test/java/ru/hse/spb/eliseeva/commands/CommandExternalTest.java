@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 public class CommandExternalTest {
 
     @Test
-    public void run() {
+    public void runTest() {
         Environment environment = new Environment();
         assertFalse(environment.isEnd());
         CommandCreator.create("echo", Collections.singletonList("12345")).run(environment);

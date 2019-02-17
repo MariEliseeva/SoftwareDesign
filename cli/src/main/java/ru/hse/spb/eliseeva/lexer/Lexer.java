@@ -9,5 +9,4 @@ import java.util.List;
  */
 public interface Lexer {
     List<Token> tokenize(String commands) throws LexerException;
-
 }

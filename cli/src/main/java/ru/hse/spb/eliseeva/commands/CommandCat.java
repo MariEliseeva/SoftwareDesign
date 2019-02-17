@@ -13,19 +13,14 @@ import java.util.List;
 public class CommandCat implements Command {
     private List<String> arguments;
 
-    /**
-     * Creates Cat command and remembers its arguments and the previous command
-     * (in case arguments are empty and we need to take the result from pipe).
-     * @param arguments files' names to write.
-     */
     CommandCat(List<String> arguments) {
         this.arguments = arguments;
     }
 
     /**
-     * If no arguments just runs the previous command and don't change its result.
+     * If no arguments just uses the previous command's result.
      * Otherwise takes all files from arguments and writes their content.
-     * @param environment environment to take variables, write output etc.
+     * @param environment environment to write output and errors.
      */
     @Override
     public void run(Environment environment) {

@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 public class CommandWcTest {
 
     @Test
-    public void run() {
+    public void runTest() {
         Environment environment = new Environment();
         environment.writeToPipe("1 2 3" + System.lineSeparator());
         CommandCreator.create("wc", new ArrayList<>()).run(environment);

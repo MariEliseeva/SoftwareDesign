@@ -59,4 +59,13 @@ public class Token {
     public String getValue() {
         return value;
     }
+
+    @Override
+    public boolean equals(Object token) {
+        if (token.getClass().equals(this.getClass())) {
+            return this.getType() == ((Token)token).getType() && this.getValue().equals(((Token)token).getValue());
+        }
+        return false;
+    }
+
 }

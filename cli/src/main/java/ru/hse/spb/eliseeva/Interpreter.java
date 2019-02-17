@@ -1,6 +1,7 @@
 package ru.hse.spb.eliseeva;
 
 import ru.hse.spb.eliseeva.commands.CommandCreator;
+import ru.hse.spb.eliseeva.exceptions.EnvironmentException;
 import ru.hse.spb.eliseeva.exceptions.LexerException;
 import ru.hse.spb.eliseeva.exceptions.ParserException;
 import ru.hse.spb.eliseeva.parser.Executable;
@@ -14,7 +15,7 @@ import java.util.Scanner;
 
 /**
  * Class to interpret bash command line. Reads input line by line, calls lexer to made tokens from the given input,
- * then calls parser to create executable objects and then run this objects with evaluated arguments.
+ * then calls parser to create executable objects and then runs this objects with evaluated arguments.
  */
 public class Interpreter {
     private Scanner scanner;
@@ -22,20 +23,14 @@ public class Interpreter {
     private Lexer lexer;
     private Environment environment;
 
-    /**
-     * Creates new interpreter with needed lexer, parser, environment and scanner.
-     */
-    public Interpreter() {
+    Interpreter() {
         scanner = new Scanner(System.in);
         environment = new Environment();
         parser = new CommandsParser();
         lexer = new CommandLexer();
     }
 
-    /**
-     * Runs the interpreter, prints results and errors.
-     */
-    public void run() {
+    void run() {
         while (scanner.hasNext()){
             String command = scanner.nextLine();
             if (command.isEmpty()) {
@@ -49,7 +44,7 @@ public class Interpreter {
                             executable.getCommandArguments(environment))
                             .run(environment);
                 }
-            } catch (LexerException | ParserException e ) {
+            } catch (LexerException | ParserException | EnvironmentException e ) {
                 System.out.println(e.getMessage());
                 continue;
             }

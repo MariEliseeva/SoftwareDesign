@@ -14,6 +14,9 @@ public class CommandEcho implements Command {
         this.arguments = arguments;
     }
 
+    /**
+     * Writes space-separated given arguments.
+     */
     @Override
     public void run(Environment environment) {
         environment.writeToPipe(String.join(" ", arguments) + System.lineSeparator());

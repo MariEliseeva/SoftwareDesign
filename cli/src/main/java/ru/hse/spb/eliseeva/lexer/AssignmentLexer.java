@@ -1,20 +1,16 @@
 package ru.hse.spb.eliseeva.lexer;
 
 import ru.hse.spb.eliseeva.exceptions.LexerException;
-
 import java.util.List;
 
-/**
- * Implementation of lexer interface for the interpreter.
- */
-public class CommandLexer implements Lexer {
+public class AssignmentLexer extends CommandLexer {
+
     /**
      * Goes through all symbols, transform them to tokens of needed token type using package-private Tokenizer class:
      * <ul>
      *     <li>for quoted text reads until paired quote</li>
      *     <li>for old variable reads until symbol is appropriate for the name</li>
-     *     <li>for new variable check that is is the only command</li>
-     *     <li>for space, pipe or usual text just creates needed token</li>
+     *     <li>for other symbols creates text token</li>
      * <ul/>
      * *
      * @param commands line of commands to transform to tokens
@@ -27,9 +23,6 @@ public class CommandLexer implements Lexer {
         for (int i = 0; i < commands.length();) {
             char symbol = commands.charAt(i);
             switch (symbol) {
-                case Tokenizer.PIPE :
-                    i = tokenizer.tokenizePipe(i);
-                    break;
                 case Tokenizer.DOUBLE_QUOTE :
                     i = tokenizer.tokenizeDoubleQuoted(i, commands);
                     break;
@@ -38,15 +31,6 @@ public class CommandLexer implements Lexer {
                     break;
                 case Tokenizer.VARIABLE_SYMBOL: {
                     i = tokenizer.tokenizeOldVariable(i, commands);
-                    break;
-                }
-                case Tokenizer.VARIABLE_ASSIGNMENT: {
-                    tokenizer.tokenizeVariableAssignment(commands, i, this);
-                    return tokenizer.getTokenList();
-                }
-                case Tokenizer.SPACE: {
-                    tokenizer.tokenizeSpace();
-                    i++;
                     break;
                 }
                 default: {
