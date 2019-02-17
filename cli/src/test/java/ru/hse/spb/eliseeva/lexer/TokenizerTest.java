@@ -14,7 +14,7 @@ public class TokenizerTest {
     public void getTokenListTest() {
         Tokenizer tokenizer = new Tokenizer();
         tokenizer.addSymbol('a');
-        tokenizer.addCurrentToken();
+        tokenizer.addTextToken();
         assertEquals(Collections.singletonList(new Token(Token.Type.TEXT, "a")), tokenizer.getTokenList());
     }
 
@@ -23,7 +23,7 @@ public class TokenizerTest {
         Tokenizer tokenizer = new Tokenizer();
         tokenizer.addSymbol('a');
         tokenizer.addSymbol('a');
-        tokenizer.tokenizePipe(0);
+        tokenizer.tokenizePipe();
         assertEquals(Arrays.asList(new Token(Token.Type.TEXT, "aa"), new Token(Token.Type.PIPE, "|")),
                 tokenizer.getTokenList());
     }
@@ -31,7 +31,7 @@ public class TokenizerTest {
     @Test
     public void tokenizeVariableAssignmentTest() throws LexerException {
         Tokenizer tokenizer = new Tokenizer();
-        tokenizer.tokenizeVariableAssignment("a=5", 1, new CommandLexer());
+        tokenizer.tokenizeVariableAssignment("a=5", new CommandLexer());
         assertEquals(Collections.singletonList(new Token(Token.Type.NEW_VARIABLE, "a=5")),
                 tokenizer.getTokenList());
     }

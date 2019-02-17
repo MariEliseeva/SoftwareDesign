@@ -24,7 +24,7 @@ public class VariableSubstitutionLexer implements Lexer {
                 i++;
             }
         }
-        tokenizer.addCurrentToken();
+        tokenizer.addTextToken();
         return tokenizer.getTokenList();
     }
 }

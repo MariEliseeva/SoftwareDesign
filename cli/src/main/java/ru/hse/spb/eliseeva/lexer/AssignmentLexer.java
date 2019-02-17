@@ -38,7 +38,7 @@ public class AssignmentLexer extends CommandLexer {
                 }
             }
         }
-        tokenizer.addCurrentToken();
+        tokenizer.addTextToken();
         return tokenizer.getTokenList();
     }
 }

@@ -27,7 +27,8 @@ public class CommandLexer implements Lexer {
             char symbol = commands.charAt(i);
             switch (symbol) {
                 case Tokenizer.PIPE :
-                    i = tokenizer.tokenizePipe(i);
+                    tokenizer.tokenizePipe();
+                    i++;
                     break;
                 case Tokenizer.DOUBLE_QUOTE :
                     i = tokenizer.tokenizeDoubleQuoted(i, commands);
@@ -40,8 +41,14 @@ public class CommandLexer implements Lexer {
                     break;
                 }
                 case Tokenizer.VARIABLE_ASSIGNMENT: {
-                    tokenizer.tokenizeVariableAssignment(commands, i, this);
-                    return tokenizer.getTokenList();
+                    if (tokenizer.getTokenList().isEmpty()) {
+                        tokenizer.tokenizeVariableAssignment(commands, this);
+                        return tokenizer.getTokenList();
+                    } else {
+                        tokenizer.addSymbol(symbol);
+                        i++;
+                        break;
+                    }
                 }
                 case Tokenizer.SPACE: {
                     tokenizer.tokenizeSpace();
@@ -54,7 +61,7 @@ public class CommandLexer implements Lexer {
                 }
             }
         }
-        tokenizer.addCurrentToken();
+        tokenizer.addTextToken();
         return tokenizer.getTokenList();
     }
 }
