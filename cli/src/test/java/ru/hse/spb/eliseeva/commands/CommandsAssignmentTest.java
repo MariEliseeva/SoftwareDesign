@@ -14,8 +14,7 @@ public class CommandsAssignmentTest {
     @Test
     public void run() throws LexerException {
         Environment environment = new Environment();
-        CommandCreator.create("=", Arrays.asList("a", "echo"),
-                Executable.getEmptyCommandExecutable()).run(environment);
+        CommandCreator.create("=", Arrays.asList("a", "echo")).run(environment);
         assertEquals("echo", environment.getVariableValue("a"));
     }
 }

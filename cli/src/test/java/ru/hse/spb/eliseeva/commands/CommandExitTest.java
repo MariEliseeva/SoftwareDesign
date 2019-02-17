@@ -15,8 +15,7 @@ public class CommandExitTest {
     public void run() throws LexerException {
         Environment environment = new Environment();
         assertFalse(environment.isEnd());
-        CommandCreator.create("exit", new ArrayList<>(),
-                Executable.getEmptyCommandExecutable()).run(environment);
+        CommandCreator.create("exit", new ArrayList<>()).run(environment);
         assertTrue(environment.isEnd());
     }
 }

@@ -31,17 +31,17 @@ public class CommandExternal implements Command {
         String s;
         try {
             Process process = Runtime.getRuntime().exec(command);
-            BufferedReader programmOutput = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            BufferedReader programOutput = new BufferedReader(new InputStreamReader(process.getInputStream()));
             StringBuilder result = new StringBuilder();
-            while ((s = programmOutput.readLine()) != null) {
-                result.append(s).append("\n");
+            while ((s = programOutput.readLine()) != null) {
+                result.append(s).append(System.lineSeparator());
             }
             if (result.length() > 0) {
                 environment.writeToPipe(result.toString().substring(0, result.length() - 1));
             }
         }
         catch (IOException e) {
-            environment.writeToPipe(e.getMessage() + "\n");
+            environment.writeToPipe(e.getMessage() + System.lineSeparator());
         }
     }
 }

@@ -1,11 +1,10 @@
 package ru.hse.spb.eliseeva.commands;
 
-import ru.hse.spb.eliseeva.exceptions.LexerException;
 import ru.hse.spb.eliseeva.Environment;
-import ru.hse.spb.eliseeva.parser.Executable;
 
-import java.io.File;
-import java.util.Collections;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -14,16 +13,14 @@ import java.util.List;
  */
 public class CommandWc implements Command {
     private List<String> arguments;
-    private Executable previousCommand;
 
-    CommandWc(List<String> arguments, Executable previousCommand) {
+    CommandWc(List<String> arguments) {
         this.arguments = arguments;
-        this.previousCommand = previousCommand;
     }
 
-    private int totalLines = 0;
-    private int totalWords = 0;
-    private int totalBytes = 0;
+    private int totalLines;
+    private int totalWords;
+    private int totalBytes;
 
     /**
      * If no files given count data in the input. Otherwise look at all the given files, runs cat command to get their
@@ -31,17 +28,24 @@ public class CommandWc implements Command {
      * @param environment environment to take variables, write output etc.
      */
     @Override
-    public void run(Environment environment) throws LexerException {
+    public void run(Environment environment) {
+        totalWords = 0;
+        totalLines = 0;
+        totalBytes = 0;
+
         if (arguments.size() == 0) {
             countFromInput(environment);
             return;
         }
         StringBuilder result = new StringBuilder();
-        for (String argument : arguments) {
-            if (isFileExists(argument)) {
-                String catResult = runCatCommand(environment, argument);
-                result.append(addStatistics(catResult)).append(" ").append(argument).append("\n");
+        for (String fileName : arguments) {
+            String fileContent = "";
+            try {
+                fileContent = new String(Files.readAllBytes(Paths.get(fileName)));
+            } catch (IOException e) {
+                environment.writeToErrors("wc: " + fileName + ": No such file found." + System.lineSeparator());
             }
+            result.append(addStatistics(fileContent)).append(" ").append(fileName).append(System.lineSeparator());
         }
         if (arguments.size() > 1) {
             result.append(getTotalInformation());
@@ -50,24 +54,16 @@ public class CommandWc implements Command {
     }
 
     private String getTotalInformation() {
-        return totalLines + " " + totalWords + " " + totalBytes + " total\n";
+        return totalLines + " " + totalWords + " " + totalBytes + " total" + System.lineSeparator();
     }
-
-    private boolean isFileExists(String fileName) {
-        return new File(fileName).exists() && !new File(fileName).isDirectory();
+    private void countFromInput(Environment environment) {
+        if (environment.hasOutPut()) {
+            String previousResult = environment.getOutput();
+            environment.writeToPipe(addStatistics(previousResult));
+        } else {
+            environment.writeToPipe("0 0 0");
+        }
     }
-
-    private void countFromInput(Environment environment) throws LexerException {
-        previousCommand.execute(environment);
-        String previousResult = environment.getOutput();
-        environment.writeToPipe(addStatistics(previousResult));
-    }
-
-    private String runCatCommand(Environment environment, String argument) throws LexerException {
-        CommandCreator.create("cat", Collections.singletonList(argument), previousCommand).run(environment);
-        return environment.getOutput();
-    }
-
 
     private String addStatistics(String s) {
         int linesNumber = s.split(System.lineSeparator()).length;

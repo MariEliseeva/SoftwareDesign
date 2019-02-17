@@ -19,9 +19,9 @@ public class CommonWordPartCreator implements WordPartCreator {
             case OLD_VARIABLE:
                 return new VariableWordPart(token.getValue());
             case SPACE:
-                return new SpaceWordPart();
+                return new StringWordPart(" ");
             case NEW_VARIABLE:
-                return new AssignmentPart();
+                return new StringWordPart("=");
         }
         return null;
     }

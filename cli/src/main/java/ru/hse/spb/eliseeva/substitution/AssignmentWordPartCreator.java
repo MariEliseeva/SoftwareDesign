@@ -19,7 +19,7 @@ public class AssignmentWordPartCreator implements WordPartCreator {
             case OLD_VARIABLE:
                 return new VariableWordPart(token.getValue());
             case SPACE:
-                return new SpaceWordPart();
+                return new StringWordPart(" ");
             case NEW_VARIABLE:
                 return new StringWordPart(token.getValue());
         }

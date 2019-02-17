@@ -49,7 +49,9 @@ public class CommandLexer implements Lexer {
                     return tokenList;
                 }
                 case SPACE: {
-                    i = tokenizeSpace(i, commands);
+                    currentToken = addCurrentToken(currentToken);
+                    tokenList.add(new Token(Token.Type.SPACE, " "));
+                    i++;
                     break;
                 }
                 default: {
@@ -90,21 +92,6 @@ public class CommandLexer implements Lexer {
         return i;
     }
 
-    private int tokenizeSpace(int i, String commands) {
-        currentToken = addCurrentToken(currentToken);
-        while (i < commands.length() && commands.charAt(i) == SPACE) {
-            i++;
-        }
-        if (i == commands.length()) {
-            return i;
-        }
-        if (!tokenList.isEmpty()) {
-            tokenList.add(new Token(Token.Type.SPACE, " "));
-        }
-        return i;
-    }
-
-
     private int tokenizeQuotes(int i, Token.Type type, String commands) throws LexerException {
         char symbol = commands.charAt(i);
         StringBuilder text = new StringBuilder();
@@ -124,7 +111,7 @@ public class CommandLexer implements Lexer {
     }
 
     private StringBuilder addCurrentToken(StringBuilder currentToken) {
-        if (!currentToken.toString().equals("")) {
+        if (currentToken.length() != 0) {
             tokenList.add(new Token(Token.Type.TEXT, currentToken.toString()));
             currentToken = new StringBuilder();
         }
@@ -146,12 +133,7 @@ public class CommandLexer implements Lexer {
     }
 
     private boolean isValidVariableName(String name) {
-        for (char c : name.toCharArray()) {
-            if (!isValidVariableSymbol(c)) {
-                return false;
-            }
-        }
-        return true;
+        return name.matches("[a-zA-Z0-9_]+");
     }
 
     private boolean isValidVariableSymbol(char symbol) {

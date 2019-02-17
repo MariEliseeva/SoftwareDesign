@@ -6,5 +6,5 @@ import ru.hse.spb.eliseeva.lexer.Token;
 import java.util.List;
 
 public interface Parser {
-    Executable parse(List<Token> tokens) throws ParserException;
+    List<Executable> parse(List<Token> tokens) throws ParserException;
 }

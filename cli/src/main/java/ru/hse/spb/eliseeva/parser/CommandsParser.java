@@ -23,13 +23,13 @@ public class CommandsParser implements Parser{
 
     private Word currentWord;
     private List<Word> commandParts;
-    private Executable previousCommand;
+    private List<Executable> commands;
 
     @Override
-    public Executable parse(List<Token> tokens) throws ParserException {
+    public List<Executable> parse(List<Token> tokens) throws ParserException {
         commandParts = new ArrayList<>();
         currentWord = Word.getEmptyWord();
-        previousCommand = Executable.getEmptyCommandExecutable();
+        commands = new ArrayList<>();
 
         for (Token token : tokens) {
             switch (token.getType()) {
@@ -51,7 +51,8 @@ public class CommandsParser implements Parser{
                 }
                 case NEW_VARIABLE: {
                     try {
-                        return parseNewVariable(token);
+                        commands.add(parseNewVariable(token));
+                        return commands;
                     } catch (LexerException e) {
                         throw new ParserException("Bad new variable value: " + token.getValue());
                     }
@@ -61,15 +62,13 @@ public class CommandsParser implements Parser{
                     break;
             }
         }
-        if (currentWord.isNotEmpty()) {
-            commandParts.add(currentWord);
-        }
-        return new Executable(commandParts, previousCommand);
+        parsePipe();
+        return commands;
     }
 
     private Executable parseNewVariable(Token token) throws LexerException {
         String assignmentString = token.getValue();
-        int index = getEqualityIndex(assignmentString);
+        int index = assignmentString.indexOf('=');
 
         String left = assignmentString.substring(0, index);
         String right = assignmentString.substring(index + 1);
@@ -85,7 +84,7 @@ public class CommandsParser implements Parser{
         assignmentParts.add(tokensToWord(leftTokens));
         assignmentParts.add(tokensToWord(rightTokens));
 
-        return new Executable(assignmentParts, Executable.getEmptyCommandExecutable());
+        return new Executable(assignmentParts);
     }
 
     private void parseSpace() {
@@ -95,11 +94,14 @@ public class CommandsParser implements Parser{
         currentWord = Word.getEmptyWord();
     }
 
-    private void parsePipe() {
+    private void parsePipe() throws ParserException {
         if (currentWord.isNotEmpty()) {
             commandParts.add(currentWord);
         }
-        previousCommand = new Executable(commandParts, previousCommand);
+        if (commandParts.isEmpty()) {
+            throw new ParserException("Wrong pipe usage.");
+        }
+        commands.add(new Executable(commandParts));
         currentWord = Word.getEmptyWord();
         commandParts = new ArrayList<>();
     }
@@ -111,14 +113,5 @@ public class CommandsParser implements Parser{
             result.addPart(assignmentWordPartCreator.create(token));
         }
         return result;
-    }
-
-    private int getEqualityIndex(String assignment) {
-        for (int i = 0; i < assignment.length(); i++) {
-            if (assignment.charAt(i) == '=') {
-                return i;
-            }
-        }
-        return -1;
     }
 }
