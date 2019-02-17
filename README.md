@@ -1,5 +1,5 @@
 # CLI
-<img src="https://github.com/MariEliseeva/SoftwareDesign/blob/hw1-cli/architecture.png">
+<img src="https://github.com/MariEliseeva/SoftwareDesign/blob/hw1-cli/Architecture.jpg">
 
 Lexer - берёт строчку, разбивает на токены.<br>
 Parser - разбивает токены по принадлежности к командам и объединяет в объекты Word токены, относящиеся к одному слову. <br> 
