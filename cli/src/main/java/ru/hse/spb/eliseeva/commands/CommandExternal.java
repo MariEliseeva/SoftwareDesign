@@ -10,8 +10,10 @@ import java.util.List;
  */
 public class CommandExternal implements Command {
     private String command;
+    private String name;
 
     CommandExternal(String commandName, List<String> commandArguments){
+        name = commandName;
         command = commandName + " " + String.join(" ", commandArguments);
     }
 
@@ -30,6 +32,11 @@ public class CommandExternal implements Command {
         catch (IOException | InterruptedException e) {
             environment.writeToErrors(e.getMessage() + System.lineSeparator());
         }
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     private String read(InputStream inputStream) throws IOException {

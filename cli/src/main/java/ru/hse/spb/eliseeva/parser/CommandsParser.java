@@ -15,7 +15,7 @@ import java.util.*;
 public class CommandsParser implements Parser{
     private Word currentWord;
     private List<Word> commandParts;
-    private List<Executable> commands;
+    private List<RawCommand> commands;
 
     /**
      * Goes through all tokens, transform them ro either a word part or a whole word,
@@ -35,7 +35,7 @@ public class CommandsParser implements Parser{
      * or new variable assignment has incorrect value.
      */
     @Override
-    public List<Executable> parse(List<Token> tokens) throws ParserException {
+    public List<RawCommand> parse(List<Token> tokens) throws ParserException {
         commandParts = new ArrayList<>();
         currentWord = Word.getEmptyWord();
         commands = new ArrayList<>();
@@ -75,7 +75,7 @@ public class CommandsParser implements Parser{
         return commands;
     }
 
-    private Executable parseNewVariable(Token token) throws LexerException {
+    private RawCommand parseNewVariable(Token token) throws LexerException {
         String assignmentString = token.getValue();
         int index = assignmentString.indexOf('=');
 
@@ -93,7 +93,7 @@ public class CommandsParser implements Parser{
         assignmentParts.add(tokensToWord(leftTokens));
         assignmentParts.add(tokensToWord(rightTokens));
 
-        return new Executable(assignmentParts);
+        return new RawCommand(assignmentParts);
     }
 
     private void parseSpace() {
@@ -110,7 +110,7 @@ public class CommandsParser implements Parser{
         if (commandParts.isEmpty()) {
             throw new ParserException("Wrong pipe usage.");
         }
-        commands.add(new Executable(commandParts));
+        commands.add(new RawCommand(commandParts));
         currentWord = Word.getEmptyWord();
         commandParts = new ArrayList<>();
     }

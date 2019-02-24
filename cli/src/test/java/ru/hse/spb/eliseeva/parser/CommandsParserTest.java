@@ -26,8 +26,8 @@ public class CommandsParserTest {
                 new Token(Token.Type.PIPE, "|"),
                 new Token(Token.Type.TEXT, "cat")
                 );
-        List<Executable> executables = new CommandsParser().parse(tokens);
-        assertEquals(executables.get(0).getCommandName(new Environment()), "echo");
-        assertEquals(executables.get(1).getCommandName(new Environment()), "cat");
+        List<RawCommand> rawCommands = new CommandsParser().parse(tokens);
+        assertEquals(rawCommands.get(0).constructCommand(new Environment()).getName(), "echo");
+        assertEquals(rawCommands.get(1).constructCommand(new Environment()).getName(), "cat");
     }
 }

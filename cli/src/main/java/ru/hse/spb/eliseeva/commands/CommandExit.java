@@ -15,4 +15,9 @@ public class CommandExit implements Command {
     public void run(Environment environment) {
         environment.end();
     }
+
+    @Override
+    public String getName() {
+        return "exit";
+    }
 }

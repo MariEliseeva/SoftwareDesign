@@ -14,6 +14,7 @@ public class CommandWcTest {
         Environment environment = new Environment();
         environment.writeToPipe("1 2 3" + System.lineSeparator());
         CommandCreator.create("wc", new ArrayList<>()).run(environment);
-        assertEquals("1 3 6" + System.lineSeparator(), environment.getOutput());
+        assertEquals("1 3 " + (5 + System.lineSeparator().length()) + System.lineSeparator(),
+                environment.getOutput());
     }
 }

@@ -11,4 +11,10 @@ public interface Command {
      * @param environment environment to take variables, write output etc.
      */
     void run(Environment environment);
+
+    /**
+     * Returns name of command represented by class
+     * @return name of command
+     */
+    String getName();
 }

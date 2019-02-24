@@ -9,5 +9,5 @@ import java.util.List;
  * Interface to parse tokens and create executable objects.
  */
 public interface Parser {
-    List<Executable> parse(List<Token> tokens) throws ParserException;
+    List<RawCommand> parse(List<Token> tokens) throws ParserException;
 }

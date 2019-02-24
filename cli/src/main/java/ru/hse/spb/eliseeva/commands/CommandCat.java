@@ -39,4 +39,9 @@ public class CommandCat implements Command {
             environment.writeToPipe(result.toString());
         }
     }
+
+    @Override
+    public String getName() {
+        return "cat";
+    }
 }

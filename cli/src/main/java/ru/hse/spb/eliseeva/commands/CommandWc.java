@@ -35,6 +35,11 @@ public class CommandWc implements Command {
         environment.writeToPipe(result);
     }
 
+    @Override
+    public String getName() {
+        return "wc";
+    }
+
     private String countFromInput(Environment environment, Information information) {
         if (environment.hasOutPut()) {
             String previousResult = environment.getOutput();
@@ -71,7 +76,9 @@ public class CommandWc implements Command {
         }
 
         private String addStatistics(String s) {
-            int linesNumber = s.length() - s.replace(System.lineSeparator(), "").length();
+            int linesNumber = s.contains(System.lineSeparator()) ?
+                    (s.length() - s.replace(System.lineSeparator(), "").length())
+                    / System.lineSeparator().length() : 1;
             int wordsNumber = s.trim().isEmpty()? 0 : s.trim().split("\\s+").length;
             int bytesNumber = s.getBytes().length;
             totalLines += linesNumber;

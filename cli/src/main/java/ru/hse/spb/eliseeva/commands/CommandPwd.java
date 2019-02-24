@@ -16,4 +16,9 @@ public class CommandPwd implements Command {
     public void run(Environment environment) {
         environment.writeToPipe(Paths.get("").toAbsolutePath().toString());
     }
+
+    @Override
+    public String getName() {
+        return "pwd";
+    }
 }

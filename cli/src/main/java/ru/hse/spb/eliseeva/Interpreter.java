@@ -1,14 +1,13 @@
 package ru.hse.spb.eliseeva;
 
-import ru.hse.spb.eliseeva.commands.CommandCreator;
 import ru.hse.spb.eliseeva.exceptions.EnvironmentException;
 import ru.hse.spb.eliseeva.exceptions.LexerException;
 import ru.hse.spb.eliseeva.exceptions.ParserException;
-import ru.hse.spb.eliseeva.parser.Executable;
 import ru.hse.spb.eliseeva.lexer.CommandLexer;
 import ru.hse.spb.eliseeva.lexer.Lexer;
 import ru.hse.spb.eliseeva.lexer.Token;
 import ru.hse.spb.eliseeva.parser.CommandsParser;
+import ru.hse.spb.eliseeva.parser.RawCommand;
 
 import java.util.List;
 import java.util.Scanner;
@@ -44,11 +43,9 @@ public class Interpreter {
             }
             try {
                 List<Token> tokens = lexer.tokenize(command);
-                List<Executable> executables = parser.parse(tokens);
-                for (Executable executable : executables) {
-                    CommandCreator.create(executable.getCommandName(environment),
-                            executable.getCommandArguments(environment))
-                            .run(environment);
+                List<RawCommand> rawCommands = parser.parse(tokens);
+                for (RawCommand rawCommand : rawCommands) {
+                    rawCommand.constructCommand(environment).run(environment);
                 }
             } catch (LexerException | ParserException | EnvironmentException e ) {
                 System.out.println(e.getMessage());
