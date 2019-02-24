@@ -16,8 +16,17 @@ public class CommandsAssignment implements Command {
         rightArgument = arguments.get(1);
     }
 
+    /**
+     * Sets variable's value in the given environment
+     * @param environment environment to set variable.
+     */
     @Override
     public void run(Environment environment) {
         environment.setVariableValue(leftArgument, rightArgument);
+    }
+
+    @Override
+    public String getName() {
+        return "=";
     }
 }

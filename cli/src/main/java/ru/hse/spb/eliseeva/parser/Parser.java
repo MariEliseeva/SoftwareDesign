@@ -5,6 +5,9 @@ import ru.hse.spb.eliseeva.lexer.Token;
 
 import java.util.List;
 
+/**
+ * Interface to parse tokens and create executable objects.
+ */
 public interface Parser {
-    Executable parse(List<Token> tokens) throws ParserException;
+    List<RawCommand> parse(List<Token> tokens) throws ParserException;
 }

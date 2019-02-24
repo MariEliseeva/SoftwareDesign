@@ -1,0 +1,25 @@
+plugins {
+    id 'java'
+}
+
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile 'info.picocli:picocli:2.3.0'
+}
+
+
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'ru.hse.spb.eliseeva.Interpreter'
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}

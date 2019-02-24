@@ -2,10 +2,8 @@ package ru.hse.spb.eliseeva.parser;
 
 import ru.hse.spb.eliseeva.exceptions.LexerException;
 import ru.hse.spb.eliseeva.exceptions.ParserException;
-import ru.hse.spb.eliseeva.lexer.CommandLexer;
+import ru.hse.spb.eliseeva.lexer.AssignmentLexer;
 import ru.hse.spb.eliseeva.lexer.Token;
-import ru.hse.spb.eliseeva.substitution.AssignmentWordPartCreator;
-import ru.hse.spb.eliseeva.substitution.CommonWordPartCreator;
 import ru.hse.spb.eliseeva.substitution.Word;
 import ru.hse.spb.eliseeva.substitution.WordPartCreator;
 
@@ -15,21 +13,32 @@ import java.util.*;
  * Parser interface implementation.
  */
 public class CommandsParser implements Parser{
-    private WordPartCreator wordPartCreator;
-
-    public CommandsParser() {
-        wordPartCreator = new CommonWordPartCreator();
-    }
-
     private Word currentWord;
     private List<Word> commandParts;
-    private Executable previousCommand;
+    private List<RawCommand> commands;
 
+    /**
+     * Goes through all tokens, transform them ro either a word part or a whole word,
+     * creates an Executable object when tokens corresponding to the parsed command are finished:
+     * <ul>
+     *     <li>when meets text, quoted text or old variable creates new WordPart from it
+     *        and adds it to the currently parsed word<li/>
+     *     <li>when meets space finishes the word which is parsed and starts a new word</li>
+     *     <li>when meets pipe create new Executable using parsed words (command name and args), starts new command</li>
+     *     <li>for new variable creates an Executable representing assignment command using lexer to tokenize
+     *     new variable value and special WordPartCreator for this case.</li>
+     * <ul/>
+     *
+     * @param tokens tokens to parse
+     * @return list of executable objects, containing the information about commands that van be executed
+     * @throws ParserException when pipe used incorrect (like lines "command |" or "| command" or "|")
+     * or new variable assignment has incorrect value.
+     */
     @Override
-    public Executable parse(List<Token> tokens) throws ParserException {
+    public List<RawCommand> parse(List<Token> tokens) throws ParserException {
         commandParts = new ArrayList<>();
         currentWord = Word.getEmptyWord();
-        previousCommand = Executable.getEmptyCommandExecutable();
+        commands = new ArrayList<>();
 
         for (Token token : tokens) {
             switch (token.getType()) {
@@ -37,55 +46,54 @@ public class CommandsParser implements Parser{
                     parseSpace();
                     break;
                 case TEXT:
-                    currentWord.addPart(wordPartCreator.create(token));
+                    currentWord.addPart(WordPartCreator.create(token));
                     break;
                 case PIPE:
                     parsePipe();
                     break;
                 case SINGLE_QUOTED:
-                    currentWord.addPart(wordPartCreator.create(token));
+                    currentWord.addPart(WordPartCreator.create(token));
                     break;
                 case DOUBLE_QUOTED: {
-                    currentWord.addPart(wordPartCreator.create(token));
+                    currentWord.addPart(WordPartCreator.create(token));
                     break;
                 }
                 case NEW_VARIABLE: {
                     try {
-                        return parseNewVariable(token);
+                        commands.add(parseNewVariable(token));
+                        return commands;
                     } catch (LexerException e) {
                         throw new ParserException("Bad new variable value: " + token.getValue());
                     }
                 }
                 case OLD_VARIABLE:
-                    currentWord.addPart(wordPartCreator.create(token));
+                    currentWord.addPart(WordPartCreator.create(token));
                     break;
             }
         }
-        if (currentWord.isNotEmpty()) {
-            commandParts.add(currentWord);
-        }
-        return new Executable(commandParts, previousCommand);
+        parsePipe();
+        return commands;
     }
 
-    private Executable parseNewVariable(Token token) throws LexerException {
+    private RawCommand parseNewVariable(Token token) throws LexerException {
         String assignmentString = token.getValue();
-        int index = getEqualityIndex(assignmentString);
+        int index = assignmentString.indexOf('=');
 
         String left = assignmentString.substring(0, index);
         String right = assignmentString.substring(index + 1);
 
-        List<Token> leftTokens = new CommandLexer().tokenize(left);
-        List<Token> rightTokens = new CommandLexer().tokenize(right);
+        List<Token> leftTokens = new AssignmentLexer().tokenize(left);
+        List<Token> rightTokens = new AssignmentLexer().tokenize(right);
 
         Word assignmentWord = Word.getEmptyWord();
-        assignmentWord.addPart(wordPartCreator.create(token));
+        assignmentWord.addPart(WordPartCreator.create(token));
 
         List<Word> assignmentParts = new ArrayList<>();
         assignmentParts.add(assignmentWord);
         assignmentParts.add(tokensToWord(leftTokens));
         assignmentParts.add(tokensToWord(rightTokens));
 
-        return new Executable(assignmentParts, Executable.getEmptyCommandExecutable());
+        return new RawCommand(assignmentParts);
     }
 
     private void parseSpace() {
@@ -95,30 +103,23 @@ public class CommandsParser implements Parser{
         currentWord = Word.getEmptyWord();
     }
 
-    private void parsePipe() {
+    private void parsePipe() throws ParserException {
         if (currentWord.isNotEmpty()) {
             commandParts.add(currentWord);
         }
-        previousCommand = new Executable(commandParts, previousCommand);
+        if (commandParts.isEmpty()) {
+            throw new ParserException("Wrong pipe usage.");
+        }
+        commands.add(new RawCommand(commandParts));
         currentWord = Word.getEmptyWord();
         commandParts = new ArrayList<>();
     }
 
     private Word tokensToWord(List<Token> tokens) {
-        WordPartCreator assignmentWordPartCreator = new AssignmentWordPartCreator();
         Word result = Word.getEmptyWord();
         for (Token token : tokens) {
-            result.addPart(assignmentWordPartCreator.create(token));
+            result.addPart(WordPartCreator.create(token));
         }
         return result;
-    }
-
-    private int getEqualityIndex(String assignment) {
-        for (int i = 0; i < assignment.length(); i++) {
-            if (assignment.charAt(i) == '=') {
-                return i;
-            }
-        }
-        return -1;
     }
 }

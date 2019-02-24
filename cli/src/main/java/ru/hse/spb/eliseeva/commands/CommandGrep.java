@@ -1,8 +1,6 @@
 package ru.hse.spb.eliseeva.commands;
 import picocli.CommandLine;
 import ru.hse.spb.eliseeva.Environment;
-import ru.hse.spb.eliseeva.exceptions.LexerException;
-import ru.hse.spb.eliseeva.parser.Executable;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -11,7 +9,6 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class CommandGrep implements Command {
-    private Executable previousCommand;
 
     @CommandLine.Option(names = {"-i"}, description = "Perform case insensitive matching.")
     private boolean ignoreCase = false;
@@ -28,28 +25,26 @@ public class CommandGrep implements Command {
     @CommandLine.Parameters(arity = "0..*", index = "1..*", paramLabel = "FILE", description = "File(s) to search.")
     private String[] files = new String[0];
 
-    CommandGrep(List<String> arguments, Executable previousCommand) {
-        this.previousCommand = previousCommand;
-        CommandLine.populateCommand(this, arguments.toArray(new String[arguments.size()]));
+    CommandGrep(List<String> arguments) {
+        CommandLine.populateCommand(this, arguments.toArray(new String[0]));
     }
 
     @Override
-    public void run(Environment environment) throws LexerException {
+    public void run(Environment environment) {
         Pattern pattern = Pattern.compile(regex, ignoreCase ? Pattern.CASE_INSENSITIVE : 0);
         int linesToPrintAfter = 0;
         StringBuilder result = new StringBuilder();
 
         if (files.length == 0) {
-            previousCommand.execute(environment);
-            for (String line : environment.getOutput().split("\n")) {
+            for (String line : environment.getOutput().split(System.lineSeparator())) {
                 if (match(line, pattern)) {
-                    result.append(line).append("\n");
+                    result.append(line).append(System.lineSeparator());
                     linesToPrintAfter = afterContext;
                 } else if (linesToPrintAfter > 0) {
                     linesToPrintAfter--;
-                    result.append(line).append("\n");
+                    result.append(line).append(System.lineSeparator());
                     if (linesToPrintAfter == 0) {
-                        result.append("--\n");
+                        result.append("--").append(System.lineSeparator());
                     }
                 }
             }
@@ -59,27 +54,32 @@ public class CommandGrep implements Command {
                 try {
                     scanner = new Scanner(new FileInputStream(fileName));
                 } catch (FileNotFoundException e) {
-                    result.append("grep: ").append(fileName).append(": No such file found.");
+                    environment.writeToErrors("grep: " + fileName + ": No such file found.");
                     continue;
                 }
                 while (scanner.hasNext()) {
                     String line = scanner.nextLine();
                     if (match(line, pattern)) {
-                        result.append(line).append("\n");
+                        result.append(line).append(System.lineSeparator());
                         linesToPrintAfter = afterContext;
                     } else if (linesToPrintAfter > 0) {
                         linesToPrintAfter--;
-                        result.append(line).append("\n");
+                        result.append(line).append(System.lineSeparator());
                         if (linesToPrintAfter == 0 && scanner.hasNext()) {
-                            result.append("--\n");
+                            result.append("--").append(System.lineSeparator());
                         }
                     }
                 }
             }
         }
         if (result.length() > 0) {
-            environment.writeToPipe(result.toString().substring(0, result.length() - 1));
+            environment.writeToPipe(result.toString());
         }
+    }
+
+    @Override
+    public String getName() {
+        return "grep";
     }
 
     private boolean match(String string, Pattern pattern) {
@@ -89,6 +89,7 @@ public class CommandGrep implements Command {
                     return true;
                 }
             }
+            return false;
         }
         return pattern.matcher(string).find();
     }

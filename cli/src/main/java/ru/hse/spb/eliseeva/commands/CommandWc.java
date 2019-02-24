@@ -1,11 +1,10 @@
 package ru.hse.spb.eliseeva.commands;
 
-import ru.hse.spb.eliseeva.exceptions.LexerException;
 import ru.hse.spb.eliseeva.Environment;
-import ru.hse.spb.eliseeva.parser.Executable;
 
-import java.io.File;
-import java.util.Collections;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -14,68 +13,78 @@ import java.util.List;
  */
 public class CommandWc implements Command {
     private List<String> arguments;
-    private Executable previousCommand;
 
-    CommandWc(List<String> arguments, Executable previousCommand) {
+    CommandWc(List<String> arguments) {
         this.arguments = arguments;
-        this.previousCommand = previousCommand;
     }
 
-    private int totalLines = 0;
-    private int totalWords = 0;
-    private int totalBytes = 0;
-
     /**
-     * If no files given count data in the input. Otherwise look at all the given files, runs cat command to get their
-     * content and counts needed statistics.
-     * @param environment environment to take variables, write output etc.
+     * If no files given counts data in the input. Otherwise looks at all given files, reads their
+     * content and counts needed statistics using an inner class to collect is.
+     * @param environment environment to write output and errors, get previous command result.
      */
     @Override
-    public void run(Environment environment) throws LexerException {
+    public void run(Environment environment) {
+        Information information = new Information();
+        String result;
         if (arguments.size() == 0) {
-            countFromInput(environment);
-            return;
+            result = countFromInput(environment, information);
+        } else {
+            result = countFromFile(environment, information);
         }
+        environment.writeToPipe(result);
+    }
+
+    @Override
+    public String getName() {
+        return "wc";
+    }
+
+    private String countFromInput(Environment environment, Information information) {
+        if (environment.hasOutPut()) {
+            String previousResult = environment.getOutput();
+            return information.addStatistics(previousResult) + System.lineSeparator();
+        } else {
+            return "0 0 0" + System.lineSeparator();
+        }
+    }
+
+    private String countFromFile(Environment environment, Information information) {
         StringBuilder result = new StringBuilder();
-        for (String argument : arguments) {
-            if (isFileExists(argument)) {
-                String catResult = runCatCommand(environment, argument);
-                result.append(addStatistics(catResult)).append(" ").append(argument).append("\n");
+        for (String fileName : arguments) {
+            String fileContent;
+            try {
+                fileContent = new String(Files.readAllBytes(Paths.get(fileName)));
+                result.append(information.addStatistics(fileContent)).append(" ").append(fileName).append(System.lineSeparator());
+            } catch (IOException e) {
+                environment.writeToErrors("wc: " + fileName + ": No such file found." + System.lineSeparator());
             }
         }
         if (arguments.size() > 1) {
-            result.append(getTotalInformation());
+            result.append(information.getTotalInformation());
         }
-        environment.writeToPipe(result.toString());
+        return result.toString();
     }
 
-    private String getTotalInformation() {
-        return totalLines + " " + totalWords + " " + totalBytes + " total\n";
-    }
+    private class Information {
+        private int totalWords = 0;
+        private int totalLines = 0;
+        private int totalBytes = 0;
 
-    private boolean isFileExists(String fileName) {
-        return new File(fileName).exists() && !new File(fileName).isDirectory();
-    }
+        private String getTotalInformation() {
+            return totalLines + " " + totalWords + " " + totalBytes + " total" + System.lineSeparator();
+        }
 
-    private void countFromInput(Environment environment) throws LexerException {
-        previousCommand.execute(environment);
-        String previousResult = environment.getOutput();
-        environment.writeToPipe(addStatistics(previousResult));
-    }
-
-    private String runCatCommand(Environment environment, String argument) throws LexerException {
-        CommandCreator.create("cat", Collections.singletonList(argument), previousCommand).run(environment);
-        return environment.getOutput();
-    }
-
-
-    private String addStatistics(String s) {
-        int linesNumber = s.split(System.lineSeparator()).length;
-        int wordsNumber = s.trim().split("\\s+").length;
-        int bytesNumber = s.getBytes().length;
-        totalLines += linesNumber;
-        totalWords += wordsNumber;
-        totalBytes += bytesNumber;
-        return linesNumber + " " + wordsNumber + " " + bytesNumber;
+        private String addStatistics(String s) {
+            int linesNumber = s.contains(System.lineSeparator()) ?
+                    (s.length() - s.replace(System.lineSeparator(), "").length())
+                    / System.lineSeparator().length() : 1;
+            int wordsNumber = s.trim().isEmpty()? 0 : s.trim().split("\\s+").length;
+            int bytesNumber = s.getBytes().length;
+            totalLines += linesNumber;
+            totalWords += wordsNumber;
+            totalBytes += bytesNumber;
+            return linesNumber + " " + wordsNumber + " " + bytesNumber;
+        }
     }
 }
