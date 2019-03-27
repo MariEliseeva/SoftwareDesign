@@ -45,9 +45,7 @@ public class CommandLexer implements Lexer {
                         tokenizer.tokenizeVariableAssignment(commands, this);
                         return tokenizer.getTokenList();
                     } else {
-                        tokenizer.addSymbol(symbol);
-                        i++;
-                        break;
+                        throw new LexerException( "Not valid assignment: " + commands);
                     }
                 }
                 case Tokenizer.SPACE: {

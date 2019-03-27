@@ -99,7 +99,7 @@ public class Environment {
      * Returns errors.
      * @return errors made
      */
-    String getErrors() {
+    public String getErrors() {
         String answer = errors;
         errors = null;
         return answer;

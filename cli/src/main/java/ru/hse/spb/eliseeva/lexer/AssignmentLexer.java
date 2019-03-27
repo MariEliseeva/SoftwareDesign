@@ -3,6 +3,9 @@ package ru.hse.spb.eliseeva.lexer;
 import ru.hse.spb.eliseeva.exceptions.LexerException;
 import java.util.List;
 
+/**
+ * Class to find lexemes in a string which is used to assign a variable.
+ */
 public class AssignmentLexer extends CommandLexer {
 
     /**

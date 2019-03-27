@@ -9,10 +9,10 @@ import java.util.Collections;
 import static org.junit.Assert.*;
 
 public class TokenizerTest {
+    private Tokenizer tokenizer = new Tokenizer();
 
     @Test
     public void getTokenListTest() {
-        Tokenizer tokenizer = new Tokenizer();
         tokenizer.addSymbol('a');
         tokenizer.addTextToken();
         assertEquals(Collections.singletonList(new Token(Token.Type.TEXT, "a")), tokenizer.getTokenList());
@@ -20,7 +20,6 @@ public class TokenizerTest {
 
     @Test
     public void tokenizePipeTest() {
-        Tokenizer tokenizer = new Tokenizer();
         tokenizer.addSymbol('a');
         tokenizer.addSymbol('a');
         tokenizer.tokenizePipe();
@@ -30,15 +29,18 @@ public class TokenizerTest {
 
     @Test
     public void tokenizeVariableAssignmentTest() throws LexerException {
-        Tokenizer tokenizer = new Tokenizer();
         tokenizer.tokenizeVariableAssignment("a=5", new CommandLexer());
         assertEquals(Collections.singletonList(new Token(Token.Type.NEW_VARIABLE, "a=5")),
                 tokenizer.getTokenList());
     }
 
+    @Test(expected = LexerException.class)
+    public void tokenizeBadVariableAssignmentTest() throws LexerException {
+        tokenizer.tokenizeVariableAssignment("a=5 4 6", new CommandLexer());
+    }
+
     @Test
     public void tokenizeDoubleQuotedTest() throws LexerException {
-        Tokenizer tokenizer = new Tokenizer();
         tokenizer.tokenizeDoubleQuoted(0, "\"a'a'a\"bbcc");
         assertEquals(Collections.singletonList(new Token(Token.Type.DOUBLE_QUOTED, "\"a'a'a\"")),
                 tokenizer.getTokenList());
@@ -46,15 +48,18 @@ public class TokenizerTest {
 
     @Test
     public void tokenizeSingleQuotedTest() throws LexerException {
-        Tokenizer tokenizer = new Tokenizer();
         tokenizer.tokenizeSingleQuoted(0, "'abc'de");
         assertEquals(Collections.singletonList(new Token(Token.Type.SINGLE_QUOTED, "'abc'")),
                 tokenizer.getTokenList());
     }
 
+    @Test(expected = LexerException.class)
+    public void tokenizeBadQuotedTest() throws LexerException {
+        tokenizer.tokenizeSingleQuoted(0, "'abcde");
+    }
+
     @Test
     public void tokenizeOldVariableTest() {
-        Tokenizer tokenizer = new Tokenizer();
         tokenizer.tokenizeOldVariable(0, "$abc d");
         assertEquals(Collections.singletonList(new Token(Token.Type.OLD_VARIABLE, "abc")),
                 tokenizer.getTokenList());

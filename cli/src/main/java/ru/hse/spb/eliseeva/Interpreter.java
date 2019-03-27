@@ -25,7 +25,7 @@ public class Interpreter {
     /**
      * Creates new interpreter with needed lexer, parser, environment and scanner.
      */
-    Interpreter() {
+    private Interpreter() {
         scanner = new Scanner(System.in);
         environment = new Environment();
         parser = new CommandsParser();
@@ -35,7 +35,7 @@ public class Interpreter {
     /**
      * Runs the interpreter, prints results and errors.
      */
-    void run() {
+    private void run() {
         while (scanner.hasNext()){
             String command = scanner.nextLine();
             if (command.isEmpty()) {

@@ -24,9 +24,4 @@ public class CommandsAssignment implements Command {
     public void run(Environment environment) {
         environment.setVariableValue(leftArgument, rightArgument);
     }
-
-    @Override
-    public String getName() {
-        return "=";
-    }
 }
