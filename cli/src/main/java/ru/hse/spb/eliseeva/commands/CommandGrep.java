@@ -2,10 +2,12 @@ package ru.hse.spb.eliseeva.commands;
 import picocli.CommandLine;
 import ru.hse.spb.eliseeva.Environment;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class CommandGrep implements Command {
@@ -33,6 +35,51 @@ public class CommandGrep implements Command {
 
     @Override
     public void run(Environment environment) {
+        if (!checkArguments(environment)) {
+            return;
+        }
+        if (wordRegexp) {
+            regex = "\\b" + regex + "\\b";
+        }
+        Pattern pattern = Pattern.compile(regex, ignoreCase ? Pattern.CASE_INSENSITIVE : 0);
+        List<String> lines = new ArrayList<>();
+        if (files.length == 0) {
+            lines = Arrays.asList(environment.getOutput().split(System.lineSeparator()));
+        } else {
+            for (String fileName : files) {
+                try {
+                    lines.addAll(Files.readAllLines(Paths.get(fileName)));
+                } catch (IOException e) {
+                    environment.writeToErrors("grep: " + fileName + ": No such file found." + System.lineSeparator());
+                }
+            }
+        }
+        String result = grep(lines, pattern);
+        if (result.length() > 0) {
+            environment.writeToPipe(result);
+        }
+    }
+
+    private String grep(List<String> lines, Pattern pattern) {
+        int linesToPrintAfter = 0;
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i);
+            if (pattern.matcher(line).find()) {
+                result.append(line).append(System.lineSeparator());
+                linesToPrintAfter = afterContext;
+            } else if (linesToPrintAfter > 0) {
+                linesToPrintAfter--;
+                result.append(line).append(System.lineSeparator());
+                if (linesToPrintAfter == 0 && i != lines.size() - 1) {
+                    result.append("--").append(System.lineSeparator());
+                }
+            }
+        }
+        return result.toString();
+    }
+
+    private boolean checkArguments(Environment environment) {
         try {
             CommandLine.populateCommand(this, arguments.toArray(new String[0]));
         } catch (CommandLine.ParameterException e) {
@@ -42,60 +89,12 @@ public class CommandGrep implements Command {
                 environment.writeToErrors("grep: Invalid option " + e.getCommandLine().getUnmatchedArguments().get(0)
                         + System.lineSeparator());
             }
-            return;
+            return false;
         }
         if (afterContext < 0) {
             environment.writeToErrors("grep: Invalid argument" + System.lineSeparator());
-            return;
+            return false;
         }
-        if (wordRegexp) {
-            regex = "\\b" + regex + "\\b";
-        }
-        Pattern pattern = Pattern.compile(regex, ignoreCase ? Pattern.CASE_INSENSITIVE : 0);
-        int linesToPrintAfter = 0;
-        StringBuilder result = new StringBuilder();
-
-        if (files.length == 0) {
-            String[] expresion = environment.getOutput().split(System.lineSeparator());
-            for (int i = 0; i < expresion.length; i++) {
-                String line = expresion[i];
-                if (pattern.matcher(line).find()) {
-                    result.append(line).append(System.lineSeparator());
-                    linesToPrintAfter = afterContext;
-                } else if (linesToPrintAfter > 0) {
-                    linesToPrintAfter--;
-                    result.append(line).append(System.lineSeparator());
-                    if (linesToPrintAfter == 0 && i != expresion.length - 1) {
-                        result.append("--").append(System.lineSeparator());
-                    }
-                }
-            }
-        } else {
-            Scanner scanner;
-            for (String fileName : files) {
-                try {
-                    scanner = new Scanner(new FileInputStream(fileName));
-                } catch (FileNotFoundException e) {
-                    environment.writeToErrors("grep: " + fileName + ": No such file found." + System.lineSeparator());
-                    continue;
-                }
-                while (scanner.hasNext()) {
-                    String line = scanner.nextLine();
-                    if (pattern.matcher(line).find()) {
-                        result.append(line).append(System.lineSeparator());
-                        linesToPrintAfter = afterContext;
-                    } else if (linesToPrintAfter > 0) {
-                        linesToPrintAfter--;
-                        result.append(line).append(System.lineSeparator());
-                        if (linesToPrintAfter == 0 && scanner.hasNext()) {
-                            result.append("--").append(System.lineSeparator());
-                        }
-                    }
-                }
-            }
-        }
-        if (result.length() > 0) {
-            environment.writeToPipe(result.toString());
-        }
+        return true;
     }
 }
