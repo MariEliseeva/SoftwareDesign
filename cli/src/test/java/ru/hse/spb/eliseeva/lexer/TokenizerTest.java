@@ -1,6 +1,5 @@
 package ru.hse.spb.eliseeva.lexer;
 
-import org.junit.Before;
 import org.junit.Test;
 import ru.hse.spb.eliseeva.exceptions.LexerException;
 
@@ -10,12 +9,7 @@ import java.util.Collections;
 import static org.junit.Assert.*;
 
 public class TokenizerTest {
-    private Tokenizer tokenizer;
-
-    @Before
-    public void initTokenizer() {
-        tokenizer = new Tokenizer();
-    }
+    private Tokenizer tokenizer = new Tokenizer();
 
     @Test
     public void getTokenListTest() {

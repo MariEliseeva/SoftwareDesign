@@ -14,6 +14,8 @@ import static org.junit.Assert.*;
 
 public class CommandsParserTest {
 
+    Environment environment = new Environment();
+
     @Test
     public void parseTest() throws ParserException, EnvironmentException {
         List<Token> tokens = Arrays.asList(
@@ -31,9 +33,8 @@ public class CommandsParserTest {
 
                 );
         List<RawCommand> rawCommands = new CommandsParser().parse(tokens);
-        assertEquals(rawCommands.get(0).getName().evaluate(new Environment()), "echo");
-        assertEquals(rawCommands.get(1).getName().evaluate(new Environment()), "cat");
-        Environment environment = new Environment();
+        assertEquals(rawCommands.get(0).getName().evaluate(environment), "echo");
+        assertEquals(rawCommands.get(1).getName().evaluate(environment), "cat");
         environment.setVariableValue("a", "bcd");
         assertEquals("bcd", rawCommands.get(2).getName().evaluate(environment));
     }
@@ -44,7 +45,7 @@ public class CommandsParserTest {
                 new Token(Token.Type.NEW_VARIABLE, "a=5")
         );
         List<RawCommand> rawCommands = new CommandsParser().parse(tokens);
-        assertEquals("=", rawCommands.get(0).getName().evaluate(new Environment()));
+        assertEquals("=", rawCommands.get(0).getName().evaluate(environment));
     }
 
     @Test(expected = ParserException.class)

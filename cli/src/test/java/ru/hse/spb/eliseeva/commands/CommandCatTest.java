@@ -9,16 +9,16 @@ import static org.junit.Assert.*;
 
 public class CommandCatTest {
 
+    private Environment environment = new Environment();
+
     @Test
     public void runTest(){
-        Environment environment = new Environment();
         CommandCreator.create("cat", Collections.singletonList("src/test/resources/file1")).run(environment);
         assertEquals("1 2 3 4    5", environment.getOutput());
     }
 
     @Test
     public void runPipeTest() {
-        Environment environment = new Environment();
         environment.writeToPipe("1 2");
         CommandCreator.create("cat", Collections.emptyList()).run(environment);
         assertEquals("1 2", environment.getOutput());
@@ -26,7 +26,6 @@ public class CommandCatTest {
 
     @Test
     public void runWithWrongFileNameTest() {
-        Environment environment = new Environment();
         CommandCreator.create("cat", Collections.singletonList("aaa")).run(environment);
         assertEquals("cat: aaa: No such file found." + System.lineSeparator(),
                 environment.getErrors());
