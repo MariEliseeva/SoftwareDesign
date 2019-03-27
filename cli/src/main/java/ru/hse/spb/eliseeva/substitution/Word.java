@@ -2,7 +2,6 @@ package ru.hse.spb.eliseeva.substitution;
 
 import ru.hse.spb.eliseeva.Environment;
 import ru.hse.spb.eliseeva.exceptions.EnvironmentException;
-import ru.hse.spb.eliseeva.exceptions.ParserException;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -2,7 +2,6 @@ package ru.hse.spb.eliseeva.substitution;
 
 import ru.hse.spb.eliseeva.Environment;
 import ru.hse.spb.eliseeva.exceptions.EnvironmentException;
-import ru.hse.spb.eliseeva.exceptions.ParserException;
 
 /**
  * Interface representing a part of a string that can be text, variable, quoted text etc.
