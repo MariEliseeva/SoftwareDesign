@@ -35,11 +35,6 @@ public class CommandWc implements Command {
         environment.writeToPipe(result);
     }
 
-    @Override
-    public String getName() {
-        return "wc";
-    }
-
     private String countFromInput(Environment environment, Information information) {
         if (environment.hasOutPut()) {
             String previousResult = environment.getOutput();

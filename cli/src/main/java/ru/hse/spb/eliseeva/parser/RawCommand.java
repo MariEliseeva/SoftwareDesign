@@ -16,9 +16,18 @@ public class RawCommand {
     private Word commandName;
     private List<Word> commandArguments;
 
-
+    /**
+     * Evaluates arguments and name and creates command class according to the name.
+     * @param environment environment to take variables if needed in arguments or name
+     * @return command class corresponding to the name
+     * @throws EnvironmentException if no variable found
+     */
     public Command constructCommand(Environment environment) throws EnvironmentException {
         return CommandCreator.create(getCommandName(environment), getCommandArguments(environment));
+    }
+
+    Word getName() {
+        return commandName;
     }
 
     /**

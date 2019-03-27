@@ -6,7 +6,12 @@ import ru.hse.spb.eliseeva.lexer.Token;
  * Creates a word part by the given token.
  */
 public class WordPartCreator {
-    public static WordPart create(Token token){
+    /**
+     * Takes the given token and construct a word part class with the given type
+     * @param token token to change into word part
+     * @return created word part
+     */
+    public static WordPart create(Token token) {
         switch (token.getType()) {
             case TEXT:
                 return new StringWordPart(token.getValue());

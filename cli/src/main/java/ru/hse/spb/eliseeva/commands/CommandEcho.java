@@ -21,9 +21,4 @@ public class CommandEcho implements Command {
     public void run(Environment environment) {
         environment.writeToPipe(String.join(" ", arguments) + System.lineSeparator());
     }
-
-    @Override
-    public String getName() {
-        return "echo";
-    }
 }

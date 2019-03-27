@@ -13,7 +13,7 @@ public class CommandExternalTest {
     public void runTest() {
         Environment environment = new Environment();
         assertFalse(environment.isEnd());
-        CommandCreator.create("echo", Collections.singletonList("12345")).run(environment);
-        assertEquals("12345" + System.lineSeparator(), environment.getOutput());
+        CommandCreator.create("whoami", Collections.emptyList()).run(environment);
+        assertEquals(System.getProperty("user.name") + System.lineSeparator(), environment.getOutput());
     }
 }

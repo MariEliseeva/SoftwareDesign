@@ -2,6 +2,7 @@ package ru.hse.spb.eliseeva.substitution;
 
 import ru.hse.spb.eliseeva.Environment;
 import ru.hse.spb.eliseeva.exceptions.EnvironmentException;
+import ru.hse.spb.eliseeva.exceptions.ParserException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
  * A group of word parts, which is also a word part for the bigger word
  * and can be evaluated by evaluating all its parts.
  */
-public class Word implements WordPart{
+public class Word implements WordPart {
     private List<WordPart> argumentParts = new ArrayList<>();
 
     private Word(){}

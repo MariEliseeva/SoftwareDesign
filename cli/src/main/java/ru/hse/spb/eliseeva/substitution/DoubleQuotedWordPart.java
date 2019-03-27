@@ -2,6 +2,7 @@ package ru.hse.spb.eliseeva.substitution;
 
 import ru.hse.spb.eliseeva.Environment;
 import ru.hse.spb.eliseeva.exceptions.EnvironmentException;
+import ru.hse.spb.eliseeva.exceptions.ParserException;
 import ru.hse.spb.eliseeva.lexer.Token;
 import ru.hse.spb.eliseeva.lexer.VariableSubstitutionLexer;
 
