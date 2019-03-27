@@ -10,13 +10,15 @@ import java.util.regex.Pattern;
 
 public class CommandGrep implements Command {
 
+    private List<String> arguments;
+
     @CommandLine.Option(names = {"-i"}, description = "Perform case insensitive matching.")
     private boolean ignoreCase = false;
 
     @CommandLine.Option(names = {"-w"}, description = "The expression is searched for as a word.")
     private boolean wordRegexp = false;
 
-    @CommandLine.Option(names = {"-A"}, paramLabel = "NUM", description = "Print NUM lines of trailing context after each match.")
+    @CommandLine.Option(names = {"-A"}, paramLabel = "-A", description = "Print NUM lines of trailing context after each match.")
     private int afterContext = 0;
 
     @CommandLine.Parameters(arity = "1", index = "0", paramLabel = "REGEX", description = "Patten to match.")
@@ -26,24 +28,44 @@ public class CommandGrep implements Command {
     private String[] files = new String[0];
 
     CommandGrep(List<String> arguments) {
-        CommandLine.populateCommand(this, arguments.toArray(new String[0]));
+        this.arguments = arguments;
     }
 
     @Override
     public void run(Environment environment) {
+        try {
+            CommandLine.populateCommand(this, arguments.toArray(new String[0]));
+        } catch (CommandLine.ParameterException e) {
+            if (e.getArgSpec() != null) {
+                environment.writeToErrors("grep: Invalid argument" + System.lineSeparator());
+            } else {
+                environment.writeToErrors("grep: Invalid option " + e.getCommandLine().getUnmatchedArguments().get(0)
+                        + System.lineSeparator());
+            }
+            return;
+        }
+        if (afterContext < 0) {
+            environment.writeToErrors("grep: Invalid argument" + System.lineSeparator());
+            return;
+        }
+        if (wordRegexp) {
+            regex = "\\b" + regex + "\\b";
+        }
         Pattern pattern = Pattern.compile(regex, ignoreCase ? Pattern.CASE_INSENSITIVE : 0);
         int linesToPrintAfter = 0;
         StringBuilder result = new StringBuilder();
 
         if (files.length == 0) {
-            for (String line : environment.getOutput().split(System.lineSeparator())) {
-                if (match(line, pattern)) {
+            String[] expresion = environment.getOutput().split(System.lineSeparator());
+            for (int i = 0; i < expresion.length; i++) {
+                String line = expresion[i];
+                if (pattern.matcher(line).find()) {
                     result.append(line).append(System.lineSeparator());
                     linesToPrintAfter = afterContext;
                 } else if (linesToPrintAfter > 0) {
                     linesToPrintAfter--;
                     result.append(line).append(System.lineSeparator());
-                    if (linesToPrintAfter == 0) {
+                    if (linesToPrintAfter == 0 && i != expresion.length - 1) {
                         result.append("--").append(System.lineSeparator());
                     }
                 }
@@ -54,12 +76,12 @@ public class CommandGrep implements Command {
                 try {
                     scanner = new Scanner(new FileInputStream(fileName));
                 } catch (FileNotFoundException e) {
-                    environment.writeToErrors("grep: " + fileName + ": No such file found.");
+                    environment.writeToErrors("grep: " + fileName + ": No such file found." + System.lineSeparator());
                     continue;
                 }
                 while (scanner.hasNext()) {
                     String line = scanner.nextLine();
-                    if (match(line, pattern)) {
+                    if (pattern.matcher(line).find()) {
                         result.append(line).append(System.lineSeparator());
                         linesToPrintAfter = afterContext;
                     } else if (linesToPrintAfter > 0) {
@@ -75,22 +97,5 @@ public class CommandGrep implements Command {
         if (result.length() > 0) {
             environment.writeToPipe(result.toString());
         }
-    }
-
-    @Override
-    public String getName() {
-        return "grep";
-    }
-
-    private boolean match(String string, Pattern pattern) {
-        if (wordRegexp) {
-            for (String word : string.trim().split("\\s+")) {
-                if (pattern.matcher(word).matches()) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        return pattern.matcher(string).find();
     }
 }

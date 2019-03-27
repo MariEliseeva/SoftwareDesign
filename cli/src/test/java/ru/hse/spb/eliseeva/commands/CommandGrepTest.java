@@ -29,17 +29,67 @@ public class CommandGrepTest {
     @Test
     public void testw() {
         Environment environment = new Environment();
-        CommandCreator.create("grep", Arrays.asList("-w", "abc", "src/test/resources/file2")
+        environment.writeToPipe("some text");
+        CommandCreator.create("grep", Arrays.asList("-w", "me text")
         ).run(environment);
-        assertEquals("ab abc" + System.lineSeparator() , environment.getOutput());
+        assertFalse(environment.hasOutPut());
+        environment.writeToPipe("so me text");
+        CommandCreator.create("grep", Arrays.asList("-w", "me text")
+        ).run(environment);
+        assertEquals("so me text" + System.lineSeparator() , environment.getOutput());
     }
 
     @Test
     public void testA() {
         Environment environment = new Environment();
-        CommandCreator.create("grep", Arrays.asList("-w", "-A", "1", "abc", "src/test/resources/file2")
+        environment.writeToPipe("a" + System.lineSeparator() + "ab"
+                + System.lineSeparator() + "cd" + System.lineSeparator() + "ef");
+        CommandCreator.create("grep", Arrays.asList("-A", "2", "a")
         ).run(environment);
-        assertEquals("ab abc" + System.lineSeparator() + "ABc" + System.lineSeparator(),
+        assertEquals("a" + System.lineSeparator() + "ab"
+                        + System.lineSeparator() + "cd" + System.lineSeparator() + "ef" + System.lineSeparator(),
                 environment.getOutput());
+    }
+
+    @Test
+    public void testAFile() {
+        Environment environment = new Environment();
+        CommandCreator.create("grep", Arrays.asList("-w", "-A", "2", "abc", "src/test/resources/file2")
+        ).run(environment);
+        assertEquals("ab abc" + System.lineSeparator() + "ABc" + System.lineSeparator()
+                        + "cde" + System.lineSeparator() + "--" + System.lineSeparator(),
+                environment.getOutput());
+    }
+
+    @Test
+    public void testNoFile() {
+        Environment environment = new Environment();
+        CommandCreator.create("grep", Arrays.asList("abc", "abcd")
+        ).run(environment);
+        assertEquals("grep: abcd: No such file found." + System.lineSeparator(), environment.getErrors());
+    }
+
+    @Test
+    public void testInvalidArgument() {
+        Environment environment = new Environment();
+        CommandCreator.create("grep", Arrays.asList("-A", "pattern")
+        ).run(environment);
+        assertEquals("grep: Invalid argument" + System.lineSeparator(), environment.getErrors());
+    }
+
+    @Test
+    public void testNegativeArgument() {
+        Environment environment = new Environment();
+        CommandCreator.create("grep", Arrays.asList("-A", "-10", "pattern")
+        ).run(environment);
+        assertEquals("grep: Invalid argument" + System.lineSeparator(), environment.getErrors());
+    }
+
+    @Test
+    public void testInvalidOption() {
+        Environment environment = new Environment();
+        CommandCreator.create("grep", Arrays.asList("-t", "pattern")
+        ).run(environment);
+        assertEquals("grep: Invalid option -t" + System.lineSeparator(), environment.getErrors());
     }
 }
