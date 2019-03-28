@@ -42,21 +42,20 @@ public class CommandGrep implements Command {
             regex = "\\b" + regex + "\\b";
         }
         Pattern pattern = Pattern.compile(regex, ignoreCase ? Pattern.CASE_INSENSITIVE : 0);
-        List<String> lines = new ArrayList<>();
+        StringBuilder result = new StringBuilder();
         if (files.length == 0) {
-            lines = Arrays.asList(environment.getOutput().split(System.lineSeparator()));
+            result.append(grep(Arrays.asList(environment.getOutput().split(System.lineSeparator())), pattern));
         } else {
             for (String fileName : files) {
                 try {
-                    lines.addAll(Files.readAllLines(Paths.get(fileName)));
+                    result.append(grep(Files.readAllLines(Paths.get(fileName)), pattern));
                 } catch (IOException e) {
                     environment.writeToErrors("grep: " + fileName + ": No such file found." + System.lineSeparator());
                 }
             }
         }
-        String result = grep(lines, pattern);
         if (result.length() > 0) {
-            environment.writeToPipe(result);
+            environment.writeToPipe(result.toString());
         }
     }
 
